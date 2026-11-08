@@ -1,5 +1,7 @@
 # podcast-polish
 
+Two versions of the same idea: a **web page** (`web/`, runs entirely in the browser, see `web/README.md`) and a **command-line tool** (`polish.py`, below, uses ffmpeg).
+
 One command turns raw podcast audio into a clean, level-balanced MP3 ready to upload.
 
 Needs Python 3.8+ and [ffmpeg](https://ffmpeg.org/download.html). No pip installs.
