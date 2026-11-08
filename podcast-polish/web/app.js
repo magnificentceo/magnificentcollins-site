@@ -2,7 +2,7 @@
   'use strict';
   var RATE = 44100;
   var $ = function (id) { return document.getElementById(id); };
-  var file = null, worker = null, urls = [];
+  var file = null, worker = null, urls = [], busyNow = false;
 
   var drop = $('drop'), input = $('file'), go = $('go'), cancel = $('cancel');
 
@@ -19,7 +19,7 @@
     $('dropMain').textContent = f.name;
     $('dropSub').textContent = fmtSize(f.size) + ' (click to change)';
     drop.classList.add('has-file');
-    go.disabled = false;
+    run(); // start right away; no extra click needed
   }
 
   drop.addEventListener('click', function () { input.click(); });
@@ -31,7 +31,15 @@
   ['dragleave', 'drop'].forEach(function (t) {
     drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('over'); });
   });
-  drop.addEventListener('drop', function (e) { if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+  drop.addEventListener('drop', function (e) { if (e.dataTransfer.files[0] && !busyNow) setFile(e.dataTransfer.files[0]); });
+
+  // Dropping anywhere on the page works, and a missed drop never makes the browser open the file.
+  document.addEventListener('dragover', function (e) { e.preventDefault(); });
+  document.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.target.closest && e.target.closest('#drop')) return;
+    if (e.dataTransfer.files[0] && !busyNow) setFile(e.dataTransfer.files[0]);
+  });
 
   function progress(stage, frac) {
     $('stage').textContent = stage;
@@ -39,7 +47,9 @@
   }
 
   function setBusy(busy) {
-    go.disabled = busy || !file;
+    busyNow = busy;
+    go.hidden = busy || !file;
+    go.textContent = 'Run again with these settings';
     cancel.hidden = !busy;
     $('progress').hidden = !busy;
     drop.style.pointerEvents = busy ? 'none' : '';

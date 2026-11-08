@@ -11,12 +11,12 @@
 <main>
   <header>
     <h1>Podcast Polish</h1>
-    <p class="lede">Drop in a recording. Get back a clean, level MP3 that's ready for Spotify, Apple Podcasts and YouTube. It all happens in this tab, so your audio never leaves your computer.</p>
+    <p class="lede">Drop in a recording and it starts cleaning right away. You get back a clean, level MP3 that's ready for Spotify, Apple Podcasts and YouTube. It all happens in this tab, so your audio never leaves your computer.</p>
   </header>
 
   <section id="drop" class="drop" tabindex="0" role="button" aria-label="Choose an audio file">
     <input id="file" type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.aiff,.aif,.mp4,.mov,.webm" hidden>
-    <p class="drop-main" id="dropMain">Drop an audio or video file here, or click to choose one</p>
+    <p class="drop-main" id="dropMain">Drag and drop an audio or video file here, or click to choose one</p>
     <p class="drop-sub" id="dropSub">WAV, MP3, M4A, FLAC, OGG and most video files</p>
   </section>
 
@@ -39,7 +39,7 @@
   </section>
 
   <div class="actions">
-    <button id="go" disabled>Clean audio</button>
+    <button id="go" hidden>Run again with these settings</button>
     <button id="cancel" class="secondary" hidden>Cancel</button>
   </div>
 
