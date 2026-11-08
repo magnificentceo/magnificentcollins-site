@@ -1,0 +1,27 @@
+# Never save secrets to GitHub.
+# Environment and secret files (passwords, API keys, tokens)
+.env
+.env.*
+*.env
+.dev.vars
+.dev.vars.*
+secrets*
+*.secret
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa*
+id_ed25519*
+credentials*.json
+service-account*.json
+
+# Tool and system clutter (never part of the website)
+node_modules/
+.wrangler/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+npm-debug.log*

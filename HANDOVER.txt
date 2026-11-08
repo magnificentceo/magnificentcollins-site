@@ -1,0 +1,217 @@
+MAGNIFICENT COLLINS MUSIC WEBSITE: HANDOVER NOTES
+Prepared November 6, 2026
+
+LIVE ADDRESS: https://magnificentcollins.com/  (also www.magnificentcollins.com)
+QR CODE: qr-codes/magnificentcollins-qr.png and .svg point to https://magnificentcollins.com/
+Print the QR code at least 1 inch (2.5 cm) wide with white space around it.
+Because the QR code uses your own domain, it keeps working even if the Cloudflare project
+behind it changes. Keep the domain renewed every year.
+
+WHERE THE FILES LIVE: GitHub repository MagnificentCEO/magnificentcollins-site (private).
+  site/        the website (this is the only folder Cloudflare publishes)
+  qr-codes/    the QR code files
+  HANDOVER.txt these notes (not published on the website)
+
+WHAT IS IN THIS ZIP
+  site/                        The website. This is the folder Cloudflare publishes.
+    index.html                 The page layout.
+    styles.css                 Colors, fonts and spacing (black, white and gray only).
+    app.js                     Builds the page from the data file. You should not need to edit it.
+    data/releases.js           THE CATALOGUE. Every song, date, cover and link lives here.
+    assets/covers/             Square cover art, one file per song.
+    favicon.svg                The small "MC" icon in the browser tab.
+  HANDOVER.txt                 This file.
+
+
+------------------------------------------------------------
+1. FIRST UPLOAD TO CLOUDFLARE PAGES (needs your sign-in)
+------------------------------------------------------------
+  1. Sign in at https://dash.cloudflare.com
+  2. Open "Workers & Pages", then select "Create application".
+  3. Choose the "Pages" tab, then "Upload assets" (also called Direct Upload).
+  4. Project name: magnificentcollins
+     If Cloudflare says the name is taken, try magnificentcollins-music and tell me which one you used.
+  5. Drag in magnificentcollins-UPLOAD.zip (or the magnificentcollins-site folder itself) and
+     select "Deploy site". Do not drag in the full handover ZIP; its files sit one folder
+     too deep and the home page would not load.
+  6. Cloudflare shows the address when it finishes, for example https://magnificentcollins.pages.dev
+     Copy the address exactly as Cloudflare shows it and send it to me. I will check it is live,
+     then make the QR codes for that exact address.
+  7. Done. Live at https://magnificentcollins.pages.dev/ (verified November 6, 2026) and at
+     https://magnificentcollins.com/ (verified November 7, 2026). Link previews use the .com.
+
+  Note: Cloudflare now suggests Workers for new projects. Pages still supports this kind of
+  upload, and the address stays the same every time you update the site.
+
+
+------------------------------------------------------------
+2. ADDING A NEW SONG
+------------------------------------------------------------
+  1. Save the square cover art into assets/covers/ with a simple name, for example
+     assets/covers/new-song.jpg (lowercase, dashes instead of spaces).
+  2. Open data/releases.js in Notepad (or any text editor).
+  3. Find the line   "releases": [
+     Right under it, paste a new block like this one (keep the comma at the end):
+
+    {
+      "id": "new-song",
+      "title": "New Song",
+      "date": "2027-03-14",
+      "cover": "assets/covers/new-song.jpg",
+      "links": [
+        { "service": "Spotify", "url": "PASTE THE SPOTIFY TRACK LINK" },
+        { "service": "Apple Music", "url": "PASTE THE APPLE MUSIC LINK" },
+        { "service": "YouTube Music", "url": "PASTE THE YOUTUBE MUSIC LINK" },
+        { "service": "YouTube", "url": "PASTE THE YOUTUBE LINK" },
+        { "service": "All platforms", "url": "PASTE THE HYPERFOLLOW LINK" }
+      ]
+    },
+
+     Only add services you actually have a working link for. Delete any line you do not have.
+     Every line inside "links" ends with a comma except the last one.
+  4. To make it the featured song at the top, change   "featured": "i-dey"   to the new id,
+     for example   "featured": "new-song"
+     Optional: change "accent" (also in data/releases.js) to a bright color from the new cover.
+     It colors the main Listen button, the "Latest release" label and the small underlines.
+     The current gold #E3B23C comes from the I Dey cover.
+  5. The page sorts songs by date and builds the year groups by itself.
+  6. To update the page preview image for link sharing, open index.html and change the two
+     lines that mention assets/covers/i-dey.jpg to the new cover file.
+
+  Background photo: assets/artist/stage.jpg (your stage photo, unchanged). To use a different
+  photo later, save it with the same name in the same folder. A tall photo with a dark
+  background works best, since the page text sits on top of it.
+
+  Button icons: the platform icons are in assets/icons/. Spotify, YouTube, Amazon Music, Deezer,
+  Instagram, TikTok and Facebook come from Font Awesome Free (CC BY 4.0; the small credit line at
+  the bottom of the page is required by that license, so keep it). Apple Music, YouTube Music,
+  TIDAL, Audiomack, Pandora and iHeart come from Simple Icons (CC0, version 16.36.0).
+  Boomplay and Anghami come from Arcticons (CC BY-SA 4.0), with the line weight increased so
+  they show at button size; that license also needs the credit line. Amazon Music uses the
+  general Amazon mark.
+  To add an icon: put the .svg in assets/icons/ and add a line to the ICONS list in app.js.
+
+  Button colors: each platform's color is set in app.js, in the list near the top called BRAND.
+  Use the service name exactly as written there (for example "YouTube Music"). A new service
+  that is not in that list still works; it just gets a plain gray button until you add its color.
+
+  Hiding a link without deleting it: add  "hidden": true  to that link, like
+    { "service": "Pandora", "url": "https://...", "hidden": true }
+
+
+------------------------------------------------------------
+2b. LYRICS AND COMMENTS
+------------------------------------------------------------
+  Lyrics: each song in data/releases.js has a "lyrics" line. Put the words between the
+  quotes. Write \n where a new line starts and \n\n for a blank line between verses.
+  A song with "lyrics": "" shows no Lyrics panel.
+
+  Comments and reviews use Cusdis (https://cusdis.com), free plan: 1 website,
+  100 approved comments a month. Visitors do not need an account. Nothing appears on your
+  site until you approve it in your Cusdis dashboard.
+  Setup (one time, needs your sign-in):
+    1. Sign up at https://cusdis.com and add a website (any name, for example
+       "Magnificent Collins").
+    2. Open the website's settings or embed code and copy the App ID (a long code with
+       dashes).
+    3. In data/releases.js, paste it between the quotes after "appId", then publish the
+       update (section 3).
+  Each song gets its own comment thread. Cusdis can show one comment box at a time, so a
+  visitor opens one song's comments at a time.
+  To approve comments: sign in at https://cusdis.com and open your website's dashboard.
+  Turn on email notifications there so you know when a comment is waiting.
+
+------------------------------------------------------------
+3. PUBLISHING AN UPDATE (same address, same QR code)
+
+  ONCE GITHUB IS CONNECTED TO CLOUDFLARE (the easy way):
+  Any change saved to the GitHub repository goes live by itself in a minute or two.
+    - Ask Claude to make the change; Claude saves it to GitHub for you.
+    - Or edit it yourself: open github.com/MagnificentCEO/magnificentcollins-site, open
+      site/data/releases.js, click the pencil icon, make the change, click "Commit changes".
+    - To add a cover image: open site/assets/covers, click "Add file" then "Upload files".
+  If something breaks, open the project in Cloudflare, Deployments, and roll back to the
+  previous version from its "..." menu.
+
+  THE OLD WAY (upload), only for the original upload-based project:
+------------------------------------------------------------
+  1. Sign in at https://dash.cloudflare.com
+  2. Workers & Pages, then open the magnificentcollins project.
+  3. Select "Create deployment" (or "Create new deployment"), set it to Production,
+     and drag in the updated magnificentcollins-site folder.
+  4. The address does not change, so the printed QR code keeps working.
+     Do not create a new project for updates. A new project means a new address.
+
+  Tip: you can link straight to one song by adding #song- and its id to the address,
+  for example  https://YOUR-ADDRESS/#song-waka   That opens the WAKA links directly.
+
+
+------------------------------------------------------------
+4. LINKS NOT ON THE WEBSITE AND WHAT IS NOT VERIFIED
+------------------------------------------------------------
+Every link from the catalogue appears on the site exactly as collected, with these exceptions:
+
+  Kept in the data file but hidden:
+  - I Dey, HyperFollow (https://distrokid.com/hyperfollow/magnificentcollins/i-dey)
+    It showed "Available Soon" at the last check, and I could not reopen it from my workspace.
+    Open it on your phone. If it lists the streaming services, change "hidden": true to
+    "hidden": false for that link in data/releases.js.
+  - Spotify single pages ("Spotify release" in the catalogue) for all seven songs.
+    The Spotify track link is shown instead, so listeners do not see two Spotify buttons.
+
+  Not used on the page:
+  - The song.link match pages. They were research sources, not listening destinations.
+
+  Still missing from the catalogue (no button shown, no guessed links):
+  - Boomplay: I Dey, I Get Backing, Tomorrow Can Wait, My Mouth, WAKA
+  - Anghami: every release except The Way I Know How
+  - Pandora: I Dey, I Get Backing
+  - Audiomack: I Dey, I Get Backing
+  - iHeart: I Dey, WAKA
+  - "All platforms" (HyperFollow): WAKA has none in the catalogue
+  - Qobuz, Napster and other regional services: not collected
+  The best place to find these is your DistroKid dashboard, which lists the live store link
+  for each release.
+
+  What was and was not checked:
+  - Checked: every button on the site was compared against the catalogue by an automated test.
+    All 79 shown song links and 6 profile links match the catalogue character for character.
+  - Checked: phone widths 320 to 430 pixels, tablet 768, desktop 1024 to 1440. No sideways
+    scrolling, every button is at least 44 pixels tall, keyboard focus outline shows on every stop.
+  - Not checked: whether each link plays the song. My workspace cannot open streaming sites, so
+    a correct-looking address is not the same as confirmed playback. Some links came from
+    cross-platform matching, and some services block songs in certain countries.
+    Before printing the QR code, tap through the buttons for I Dey on your own phone.
+  - Checked on the live site (November 6, 2026): all 79 song links, the 6 profile links and the
+    3 social links on https://magnificentcollins.pages.dev/ match this catalogue exactly, and the
+    covers, photo and icons all load. Both QR files decode to exactly that address.
+
+
+------------------------------------------------------------
+6. SECURITY (reviewed November 7, 2026)
+------------------------------------------------------------
+  The site is static: no server code, database, logins, admin pages, file uploads or
+  forms of its own. Most "vibe coding" security checklists (RLS, SQL queries, password
+  hashing, webhooks, admin routes, rate limiting, server-side secrets) do not apply,
+  because there is nothing on the site for them to protect.
+
+  What is in place:
+  - site/_headers: security headers Cloudflare sends with every page. They block
+    cross-site scripting from other sites, stop other sites from embedding your page,
+    force secure https connections, and turn off camera, microphone and location access.
+  - No secrets anywhere in the files. The Cusdis App ID is public by design.
+  - .gitignore: GitHub will never save .env files, keys or other secret files, even
+    by accident.
+  - Nothing is written to logs, and saves to GitHub use your private no-reply address
+    (magnificentceo@users.noreply.github.com) instead of your personal email.
+  - All song, title and lyric text is inserted as plain text, never as code.
+  - Every outside link opens safely in a new tab (rel="noopener").
+  - No outside code libraries, so there is nothing to keep updated.
+
+  BEFORE TURNING ON COMMENTS: the Content-Security-Policy line in site/_headers blocks
+  outside scripts. Cusdis must be added to it first, or the comment box will not load.
+  Ask Claude to do this together with adding your App ID.
+
+  The biggest risk is your accounts, not the code. Turn on two-factor authentication
+  (an authenticator app) for: Cloudflare (domain and hosting), GitHub (site files),
+  your Gmail (password resets for everything else) and later Cusdis.

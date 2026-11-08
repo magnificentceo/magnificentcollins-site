@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magnificent Collins | Get edified.</title>
+  <meta name="description" content="Official music page for Magnificent Collins. Listen to the latest release, I Dey, and every earlier single on Spotify, Apple Music, YouTube Music and more.">
+  <meta name="theme-color" content="#0b0b0c">
+  <link rel="canonical" href="https://magnificentcollins.com/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/covers/i-dey.jpg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://magnificentcollins.com/">
+  <meta property="og:site_name" content="Magnificent Collins">
+  <meta property="og:title" content="Magnificent Collins | Get edified.">
+  <meta property="og:description" content="Listen to I Dey and every Magnificent Collins release on your favorite streaming service.">
+  <meta property="og:image" content="https://magnificentcollins.com/assets/covers/i-dey.jpg">
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="800">
+  <meta property="og:image:alt" content="Cover art for I Dey by Magnificent Collins">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Magnificent Collins | Get edified.">
+  <meta name="twitter:description" content="Listen to I Dey and every Magnificent Collins release on your favorite streaming service.">
+  <meta name="twitter:image" content="https://magnificentcollins.com/assets/covers/i-dey.jpg">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="Magnificent Collins, back to top"><span class="brand-full">Magnificent Collins</span><span class="brand-short" aria-hidden="true">MC</span></a>
+      <nav aria-label="Main">
+        <ul class="nav">
+          <li><a href="#latest">Latest</a></li>
+          <li><a href="#releases">Releases</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#follow">Follow</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="intro" id="top">
+      <img class="artist-photo" id="artist-photo" alt="" hidden>
+      <h1>Magnificent Collins</h1>
+      <p class="tagline">Get edified.</p>
+    </section>
+
+    <section class="latest glass" id="latest" aria-labelledby="latest-title">
+      <!-- Filled from data/releases.js -->
+    </section>
+
+    <section class="releases" id="releases" aria-labelledby="releases-title">
+      <h2 id="releases-title" class="section-title">All releases</h2>
+      <div id="catalogue"></div>
+    </section>
+
+    <section class="about glass" id="about" aria-labelledby="about-title">
+      <h2 id="about-title" class="section-title">About</h2>
+      <div class="about-text" id="about-text"></div>
+    </section>
+
+    <section class="follow glass" id="follow" aria-labelledby="follow-title">
+      <h2 id="follow-title" class="section-title">Follow Magnificent Collins</h2>
+      <h3 class="follow-sub">Listen</h3>
+      <ul class="profile-list" id="profiles"></ul>
+      <div id="socials-block" hidden>
+        <h3 class="follow-sub">Social media</h3>
+        <ul class="profile-list" id="socials"></ul>
+      </div>
+    </section>
+
+    <section class="share glass" id="share" aria-labelledby="share-title">
+      <h2 id="share-title" class="section-title">Share this page</h2>
+      <p class="muted">Send this page to a friend so they can pick their own app.</p>
+      <div class="share-row">
+        <button type="button" class="btn btn-solid" id="share-btn">Share</button>
+        <button type="button" class="btn" id="copy-btn">Copy link</button>
+      </div>
+      <label class="share-url-label" for="share-url">Page address</label>
+      <input class="share-url" id="share-url" type="text" readonly>
+      <p class="status" id="share-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <noscript>
+      <section class="glass">
+        <p>This page needs JavaScript to list the songs. You can still find Magnificent Collins on
+        <a href="https://open.spotify.com/artist/2t9vQhAiM6RhihieVwEb3i">Spotify</a>,
+        <a href="https://music.apple.com/ng/artist/magnificent-collins/1728306773">Apple Music</a> and
+        <a href="https://www.youtube.com/channel/UCenwrPBnJ5k8Bw74QCY3cAw">YouTube</a>.</p>
+      </section>
+    </noscript>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; <span id="year"></span> Magnificent Collins. Get edified.</p>
+    <p class="credit">Platform icons by <a href="https://fontawesome.com/license/free" target="_blank" rel="noopener">Font Awesome</a> (CC BY 4.0), <a href="https://simpleicons.org/" target="_blank" rel="noopener">Simple Icons</a> (CC0) and <a href="https://github.com/Arcticons-Team/Arcticons" target="_blank" rel="noopener">Arcticons</a> (CC BY-SA 4.0). Platform names and logos belong to their owners.</p>
+  </footer>
+
+  <script src="data/releases.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
