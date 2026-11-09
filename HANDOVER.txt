@@ -102,7 +102,16 @@ WHAT IS IN THIS ZIP
 ------------------------------------------------------------
 2b. LYRICS AND COMMENTS
 ------------------------------------------------------------
-  Lyrics: each song in data/releases.js has a "lyrics" line. Put the words between the
+  Lyrics, the easy way (recommended): one plain text file per song in site/lyrics/,
+  named after the song's id, for example site/lyrics/i-dey.txt or site/lyrics/waka.txt.
+  Type or paste the words exactly as you want them shown, with normal line breaks and a
+  blank line between verses. On GitHub: open the repository, click "Add file", then
+  "Create new file", type site/lyrics/i-dey.txt as the name, paste the lyrics, and click
+  "Commit changes". The Lyrics panel appears under that song within a minute or two.
+  Song ids: i-dey, i-get-backing, tomorrow-can-wait, my-mouth, never-stagger, waka,
+  the-way-i-know-how. To remove lyrics, delete the file.
+
+  Lyrics, the older way: each song in data/releases.js has a "lyrics" line. Put the words between the
   quotes. Write \n where a new line starts and \n\n for a blank line between verses.
   A song with "lyrics": "" shows no Lyrics panel.
 

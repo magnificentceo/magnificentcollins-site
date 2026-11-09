@@ -142,6 +142,28 @@
     ]);
   }
 
+  // Lyrics can also live in their own plain text file: site/lyrics/<song id>.txt
+  // (for example lyrics/i-dey.txt). The file is only requested the first time a song is
+  // opened. If there is no file, nothing is shown.
+  function watchLyricsFile(r, details, body) {
+    function onToggle() {
+      if (!details.open) return;
+      details.removeEventListener("toggle", onToggle);
+      fetch("lyrics/" + encodeURIComponent(r.id) + ".txt", { cache: "no-cache" })
+        .then(function (res) {
+          var type = res.headers.get("content-type") || "";
+          return res.ok && type.indexOf("text/plain") === 0 ? res.text() : "";
+        })
+        .then(function (text) {
+          var panel = lyricsPanel({ id: r.id, lyrics: text });
+          if (!panel) return;
+          body.insertBefore(panel, body.querySelector(".sub-panel.comments"));
+        })
+        .catch(function () { /* no lyrics file: show nothing */ });
+    }
+    details.addEventListener("toggle", onToggle);
+  }
+
   // Comments and reviews (Cusdis). Cusdis shows one comment box per page, so each song
   // has a button that moves the box to that song. Nothing loads until someone taps it.
   var cfg = data.comments || {};
@@ -250,11 +272,13 @@
         el("span", { className: "label-open", text: "Listen" }),
         el("span", { className: "label-close", text: "Close" })
       ]);
+      var body = el("div", { className: "release-body" }, [linkButtons(r, false), lyricsPanel(r), commentsPanel(r)]);
       var details = el("details", { className: "release glass", id: "song-" + r.id }, [
         el("summary", { "aria-label": r.title + ", released " + formatDate(r.date) + ". Show streaming links." },
           [coverImg(r, "release-cover", false), info, toggle]),
-        el("div", { className: "release-body" }, [linkButtons(r, false), lyricsPanel(r), commentsPanel(r)])
+        body
       ]);
+      if (!(r.lyrics || "").trim()) watchLyricsFile(r, details, body);
       list.appendChild(el("li", null, [details]));
     });
     catalogue.appendChild(el("div", { className: "year-group" }, [
