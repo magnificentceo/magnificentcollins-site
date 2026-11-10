@@ -294,6 +294,34 @@
   }
   openSongFromHash();
   window.addEventListener("hashchange", openSongFromHash);
+  // The featured song gets a "Lyrics" link when its lyrics live in a text file.
+  if (!(featured.lyrics || "").trim() && !document.getElementById("featured-more")) {
+    fetch("lyrics/" + encodeURIComponent(featured.id) + ".txt", { method: "HEAD", cache: "no-cache" })
+      .then(function (res) {
+        var type = res.headers.get("content-type") || "";
+        if (!res.ok || type.indexOf("text/plain") !== 0) return;
+        var link = el("a", { href: "#song-" + featured.id, id: "featured-more", className: "btn lyrics-btn gloss",
+          text: commentsOn ? "Read the lyrics & comments" : "Read the lyrics" });
+        link.addEventListener("click", openFeaturedLyrics);
+        var target = latest.querySelector(".btn-grid");
+        var holder = el("p", { className: "more-link" }, [link]);
+        var extras = latest.querySelector(".extra-links");
+        (extras || target).insertAdjacentElement("afterend", holder);
+      })
+      .catch(function () { /* no lyrics file */ });
+  }
+  function openFeaturedLyrics() {
+    var song = document.getElementById("song-" + featured.id);
+    if (!song) return;
+    song.open = true;
+    var tries = 0;
+    (function openPanel() {
+      var lyr = document.getElementById("lyrics-" + featured.id);
+      if (lyr) { lyr.open = true; lyr.scrollIntoView(); return; }
+      if (++tries < 20) setTimeout(openPanel, 100);
+    })();
+  }
+
   var moreLink = document.getElementById("featured-more");
   if (moreLink) moreLink.addEventListener("click", function () {
     var song = document.getElementById("song-" + featured.id);

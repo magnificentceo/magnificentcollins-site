@@ -256,6 +256,8 @@ main { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
 .comment-status:empty { display: none; }
 .comment-note { margin: 8px 0 0; font-size: 0.85rem; color: var(--text-3); }
 .more-link { margin: 14px 0 0; }
+.more-link a.lyrics-btn { width: 100%; text-decoration: none; color: var(--text); border-color: var(--accent); }
+.more-link a.lyrics-btn:hover { color: var(--text); }
 .more-link a {
   display: inline-flex; align-items: center; min-height: 44px;
   color: var(--accent); font-weight: 700; text-underline-offset: 4px;
