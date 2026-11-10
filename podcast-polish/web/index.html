@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podcast Polish</title>
+<meta name="description" content="Clean up podcast audio in your browser and download a balanced MP3. Nothing is uploaded.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Podcast Polish</h1>
+    <p class="lede">Drop in a recording and it starts cleaning right away. You get back a clean, level MP3 that's ready for Spotify, Apple Podcasts and YouTube. It all happens in this tab, so your audio never leaves your computer.</p>
+  </header>
+
+  <section id="drop" class="drop" tabindex="0" role="button" aria-label="Choose an audio file">
+    <input id="file" type="file" accept="audio/*,video/*,.wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.aiff,.aif,.mp4,.mov,.webm" hidden>
+    <p class="drop-main" id="dropMain">Drag and drop an audio or video file here, or click to choose one</p>
+    <p class="drop-sub" id="dropSub">WAV, MP3, M4A, FLAC, OGG and most video files</p>
+  </section>
+
+  <section class="options" aria-label="Options">
+    <fieldset>
+      <legend>Noise cleanup</legend>
+      <label><input type="radio" name="preset" value="light"> Light</label>
+      <label><input type="radio" name="preset" value="standard" checked> Standard</label>
+      <label><input type="radio" name="preset" value="strong"> Strong</label>
+    </fieldset>
+    <label class="field">Bitrate
+      <select id="kbps">
+        <option value="64">64 kbps (small, speech only)</option>
+        <option value="96">96 kbps</option>
+        <option value="128" selected>128 kbps (standard)</option>
+        <option value="192">192 kbps</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="mono"> Mono (half the file size; best for one-mic shows)</label>
+  </section>
+
+  <div class="actions">
+    <button id="go" hidden>Run again with these settings</button>
+    <button id="cancel" class="secondary" hidden>Cancel</button>
+  </div>
+
+  <section id="progress" hidden aria-live="polite">
+    <div class="bar"><div id="barFill"></div></div>
+    <p id="stage">Starting</p>
+  </section>
+
+  <p id="error" class="error" role="alert" hidden></p>
+
+  <section id="result" hidden>
+    <h2>Done</h2>
+    <div class="players">
+      <figure><figcaption>Original</figcaption><audio id="origAudio" controls preload="metadata"></audio></figure>
+      <figure><figcaption>Cleaned</figcaption><audio id="cleanAudio" controls preload="metadata"></audio></figure>
+    </div>
+    <table class="stats">
+      <thead><tr><th></th><th>Before</th><th>After</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Loudness</th><td id="lufsB"></td><td id="lufsA"></td></tr>
+        <tr><th scope="row">Voice above background noise</th><td id="snrB"></td><td id="snrA"></td></tr>
+        <tr><th scope="row">Loudest peak</th><td id="peakB"></td><td id="peakA"></td></tr>
+      </tbody>
+    </table>
+    <a id="download" class="button" download>Download MP3 <span id="size"></span></a>
+    <p class="hint">Loudness is set to -16 LUFS with headroom for MP3 encoding, the level most podcast platforms expect.</p>
+  </section>
+
+  <footer>
+    <p>Rumble filter, noise reduction, speaker leveling, light compression, loudness normalization and a peak limiter, in that order. MP3 encoding by <a href="https://github.com/zhuker/lamejs">lamejs</a> (LGPL).</p>
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
