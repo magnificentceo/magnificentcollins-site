@@ -87,7 +87,7 @@
           for (var i = 0; i < extra.length; i++) chs[k % 2][i] += extra[i] * 0.5;
         }
       }
-      worker = new Worker('worker.js');
+      worker = makeWorker();
       worker.onmessage = function (e) {
         var m = e.data;
         if (m.type === 'progress') progress(m.stage, m.frac);
@@ -100,6 +100,13 @@
     }).catch(function () {
       fail('This browser could not read that file. Try WAV, MP3, M4A, FLAC or OGG (or open the page in Chrome, Edge or Safari for the widest format support).');
     });
+  }
+
+  // In the single-file build the engine is embedded in the page; otherwise load worker.js.
+  function makeWorker() {
+    var el = document.getElementById('workerSrc');
+    if (!el) return new Worker('worker.js');
+    return new Worker(URL.createObjectURL(new Blob([el.textContent], { type: 'application/javascript' })));
   }
 
   function endWorker() { if (worker) { worker.terminate(); worker = null; } }

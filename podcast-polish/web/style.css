@@ -59,3 +59,4 @@ audio { width: 100%; }
 footer { margin-top: 48px; color: var(--muted); font-size: .85rem; }
 a { color: inherit; }
 @media (min-width: 560px) { .players { grid-template-columns: 1fr 1fr; } }
+[hidden] { display: none !important; }
