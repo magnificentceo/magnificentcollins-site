@@ -18,9 +18,10 @@ Then open http://localhost:8000. To put it online, upload the `web/` folder to a
 | Step | Purpose |
 |---|---|
 | Rumble filter (80 Hz) | Removes desk thumps and low hum |
-| Noise reduction | Learns the room's noise from the pauses between sentences, then lowers it. Light / Standard / Strong |
+| Noise reduction | Learns the room's noise from the pauses between sentences, then lowers it. A strength slider from Gentle to Strong |
 | Speaker leveler | Lifts a quieter speaker toward the louder one (up to 8 dB) without lifting room noise in the pauses |
 | Compressor | Catches only the loud syllables (2:1, 3:1 or 4:1 by preset) |
+| De-esser | Softens harsh "s" and "sh" sounds (5-9 kHz), at most 6 dB, only when they stand out from the rest of the voice |
 | Loudness | Sets integrated loudness to -16 LUFS (ITU-R BS.1770) |
 | Peak limiter | 5 ms look-ahead, keeps true peak under -1.5 dBTP after MP3 encoding |
 | MP3 | 44.1 kHz, 64-192 kbps, optional mono |
@@ -41,7 +42,7 @@ Speed is roughly 30x real time (45 seconds of audio in about 1.5 seconds on the 
 - **Formats** are whatever the browser can decode. Chrome, Edge, Safari and Firefox all handle WAV, MP3, FLAC, OGG and M4A/AAC. AIFF works in Safari only. If a file won't open, convert it to WAV first.
 - **Length.** The whole file is held in memory as decoded audio (about 10 MB per minute per channel). Episodes up to an hour or so are fine on a laptop; much longer may run out of memory, especially on phones. Mono mode halves it.
 - **What it can't fix:** echo, music under speech, other people talking in the background, clipped (distorted) recordings. Stationary noise (hiss, fans, hum) is what it removes.
-- If Strong makes a voice sound thin or watery, go back to Standard. Heavy noise reduction on a quiet recording is where artifacts come from.
+- If the slider near Strong makes a voice sound thin or watery, move it back toward the middle. Heavy noise reduction on a quiet recording is where artifacts come from.
 
 ## Files
 

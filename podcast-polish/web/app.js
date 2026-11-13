@@ -72,7 +72,7 @@
     setBusy(true);
     progress('Reading file', 0.01);
 
-    var preset = document.querySelector('input[name=preset]:checked').value;
+    var strength = parseInt($('strength').value, 10) / 100;
     var mono = $('mono').checked, kbps = parseInt($('kbps').value, 10);
 
     file.arrayBuffer().then(function (ab) {
@@ -95,7 +95,7 @@
         else if (m.type === 'error') { fail(m.message); }
       };
       worker.onerror = function () { fail('The audio engine failed to start. Try reloading the page.'); };
-      worker.postMessage({ channels: chs, rate: RATE, opts: { preset: preset, mono: mono, kbps: kbps } },
+      worker.postMessage({ channels: chs, rate: RATE, opts: { strength: strength, mono: mono, kbps: kbps } },
                          chs.map(function (c) { return c.buffer; }));
     }).catch(function () {
       fail('This browser could not read that file. Try WAV, MP3, M4A, FLAC or OGG (or open the page in Chrome, Edge or Safari for the widest format support).');
@@ -130,6 +130,16 @@
     $('result').hidden = false;
     $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  function describeStrength() {
+    var v = parseInt($('strength').value, 10), label, note;
+    if (v < 30) { label = 'Gentle'; note = 'Gentle: for recordings that are already fairly clean.'; }
+    else if (v < 70) { label = 'Standard'; note = 'Standard: a good starting point for most recordings.'; }
+    else { label = 'Strong'; note = 'Strong: for noisy rooms. If a voice sounds thin or watery, back off.'; }
+    $('strength').setAttribute('aria-valuetext', label);
+    $('strengthNote').textContent = note;
+  }
+  $('strength').addEventListener('input', describeStrength);
 
   go.addEventListener('click', run);
   cancel.addEventListener('click', function () { endWorker(); setBusy(false); showError('Cancelled.'); });

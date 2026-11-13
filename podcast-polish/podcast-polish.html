@@ -68,6 +68,11 @@ footer { margin-top: 48px; color: var(--muted); font-size: .85rem; }
 a { color: inherit; }
 @media (min-width: 560px) { .players { grid-template-columns: 1fr 1fr; } }
 [hidden] { display: none !important; }
+
+.slider { display: grid; gap: 6px; font-weight: 600; }
+.slider-row { display: flex; align-items: center; gap: 12px; font-weight: 400; color: var(--muted); font-size: .9rem; }
+.slider-row input { flex: 1; accent-color: var(--accent); }
+.slider-note { font-weight: 400; color: var(--muted); font-size: .9rem; }
 </style>
 </head>
 <body>
@@ -84,12 +89,10 @@ a { color: inherit; }
   </section>
 
   <section class="options" aria-label="Options">
-    <fieldset>
-      <legend>Noise cleanup</legend>
-      <label><input type="radio" name="preset" value="light"> Light</label>
-      <label><input type="radio" name="preset" value="standard" checked> Standard</label>
-      <label><input type="radio" name="preset" value="strong"> Strong</label>
-    </fieldset>
+    <label class="slider">Noise cleanup strength
+      <span class="slider-row"><span>Gentle</span><input type="range" id="strength" min="0" max="100" value="50" aria-valuetext="Standard"><span>Strong</span></span>
+      <span class="slider-note" id="strengthNote">Standard: a good starting point for most recordings.</span>
+    </label>
     <label class="field">Bitrate
       <select id="kbps">
         <option value="64">64 kbps (small, speech only)</option>
@@ -153,6 +156,13 @@ a { color: inherit; }
     standard: { floorDb: -16, alpha: 1.4, ratio: 3.0 },
     strong:   { floorDb: -24, alpha: 2.0, ratio: 4.0 }
   };
+  // Strength runs 0..1 (the slider). Presets are just named positions on it.
+  var STRENGTH = { light: 0.2, standard: 0.5, strong: 0.85 };
+  function paramsFor(opts) {
+    var s = typeof opts.strength === 'number' ? opts.strength : (STRENGTH[opts.preset] || STRENGTH.standard);
+    s = Math.max(0, Math.min(1, s));
+    return { floorDb: -6 - 22 * s, alpha: 0.8 + 1.4 * s, ratio: 1.5 + 2.5 * s };
+  }
   var TARGET_LUFS = -16;
   var CEILING_DB = -2.5; // sample-peak ceiling; keeps true peak under -1.5 dBTP after MP3 encoding
 
@@ -425,6 +435,61 @@ a { color: inherit; }
     }
   }
 
+  /* ---------- de-esser: softens harsh "s" and "sh" sounds ---------- */
+
+  function lowpassCoefs(fc, fs, Q) {
+    var w = 2 * Math.PI * fc / fs, cw = Math.cos(w), al = Math.sin(w) / (2 * Q), a0 = 1 + al;
+    return { b0: (1 - cw) / 2 / a0, b1: (1 - cw) / a0, b2: (1 - cw) / 2 / a0, a1: -2 * cw / a0, a2: (1 - al) / a0 };
+  }
+
+  function biquadStep(c, st, v) {
+    var y = c.b0 * v + st[0];
+    st[0] = c.b1 * v - c.a1 * y + st[1];
+    st[1] = c.b2 * v - c.a2 * y;
+    return y;
+  }
+
+  // Works only on the 5-9 kHz band, and only when that band is unusually strong compared with the
+  // whole voice. Reduction is capped at 6 dB, so it softens harshness without lisping.
+  function deesser(chs, fs) {
+    var n = chs[0].length, nc = chs.length, hp = highpassCoefs(5000, fs, Math.SQRT1_2), lp = lowpassCoefs(9000, fs, Math.SQRT1_2);
+    var hop = Math.round(fs * 0.01), nb = Math.floor(n / hop), c, i, b;
+    // Pass 1: how much of the energy is sibilant, per 10 ms block? Pick a threshold from the speech itself.
+    var ratio = new Float32Array(nb), loud = new Float32Array(nb), st = [];
+    for (c = 0; c < nc; c++) st.push([[0, 0], [0, 0]]);
+    for (b = 0; b < nb; b++) {
+      var full = 0, band = 0;
+      for (i = b * hop; i < (b + 1) * hop; i++) for (c = 0; c < nc; c++) {
+        var v = chs[c][i], y = biquadStep(lp, st[c][1], biquadStep(hp, st[c][0], v));
+        full += v * v; band += y * y;
+      }
+      loud[b] = full; ratio[b] = band / (full + 1e-12);
+    }
+    var order = Array.prototype.slice.call(loud).sort(function (a, b) { return a - b; });
+    var gate = order[Math.floor(nb * 0.9)] * 0.01, r = [];
+    for (b = 0; b < nb; b++) if (loud[b] > gate) r.push(ratio[b]);
+    if (r.length < 20) return;
+    r.sort(function (a, b) { return a - b; });
+    var T = Math.max(0.02, r[Math.floor(r.length * 0.8)]);
+    // Pass 2: smooth gain on the band, then subtract the reduced part of it from the signal.
+    var kA = 1 - Math.exp(-1 / (0.001 * fs)), kR = 1 - Math.exp(-1 / (0.03 * fs));
+    var pf = 0, pb = 0, g = 1, minG = dbToLin(-6), bands = new Float64Array(nc);
+    for (c = 0; c < nc; c++) st[c] = [[0, 0], [0, 0]];
+    for (i = 0; i < n; i++) {
+      var f2 = 0, b2 = 0;
+      for (c = 0; c < nc; c++) {
+        var v2 = chs[c][i], y2 = biquadStep(lp, st[c][1], biquadStep(hp, st[c][0], v2));
+        bands[c] = y2; f2 += v2 * v2; b2 += y2 * y2;
+      }
+      pf += (f2 - pf) * kR; pb += (b2 - pb) * (b2 > pb ? kA : kR);
+      var rr = pb / (pf + 1e-12), target = rr > T ? Math.pow(T / rr, 0.6) : 1;
+      if (target < minG) target = minG;
+      g += (target - g) * (target < g ? kA : kR);
+      var cut = 1 - g;
+      if (cut > 0.001) for (c = 0; c < nc; c++) chs[c][i] -= bands[c] * cut;
+    }
+  }
+
   /* ---------- look-ahead peak limiter ---------- */
 
   function limiter(chs, fs, ceilingLin) {
@@ -496,7 +561,7 @@ a { color: inherit; }
   function process(chs, fs, opts, report) {
     opts = opts || {};
     report = report || function () {};
-    var preset = PRESETS[opts.preset] || PRESETS.standard, target = opts.targetLufs || TARGET_LUFS;
+    var preset = paramsFor(opts), target = opts.targetLufs || TARGET_LUFS;
     if (opts.mono) chs = mixDown(chs);
     var before = { lufs: integratedLoudness(chs, fs), peakDb: samplePeakDb(chs) };
     var ls = levelStats(chs, fs); before.snrDb = ls.snrDb; before.noiseDb = ls.noiseDb; before.speechDb = ls.speechDb;
@@ -516,6 +581,9 @@ a { color: inherit; }
     var lv = leveler(chs, fs);
     report('Smoothing dynamics', 0.76);
     compressor(chs, fs, lv.thresholdDb, preset.ratio);
+
+    report('Softening harsh S sounds', 0.80);
+    deesser(chs, fs);
 
     report('Setting loudness', 0.85);
     var ceiling = dbToLin(CEILING_DB), applied = 0, after = -Infinity;
@@ -540,7 +608,7 @@ a { color: inherit; }
   }
 
   var api = { process: process, encodeMp3: encodeMp3, integratedLoudness: integratedLoudness,
-              levelStats: levelStats, samplePeakDb: samplePeakDb, PRESETS: PRESETS, TARGET_LUFS: TARGET_LUFS };
+              levelStats: levelStats, deesser: deesser, samplePeakDb: samplePeakDb, PRESETS: PRESETS, TARGET_LUFS: TARGET_LUFS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PodcastDSP = api;
 })(typeof self !== 'undefined' ? self : this);
@@ -946,7 +1014,7 @@ self.onmessage = function (e) {
     setBusy(true);
     progress('Reading file', 0.01);
 
-    var preset = document.querySelector('input[name=preset]:checked').value;
+    var strength = parseInt($('strength').value, 10) / 100;
     var mono = $('mono').checked, kbps = parseInt($('kbps').value, 10);
 
     file.arrayBuffer().then(function (ab) {
@@ -969,7 +1037,7 @@ self.onmessage = function (e) {
         else if (m.type === 'error') { fail(m.message); }
       };
       worker.onerror = function () { fail('The audio engine failed to start. Try reloading the page.'); };
-      worker.postMessage({ channels: chs, rate: RATE, opts: { preset: preset, mono: mono, kbps: kbps } },
+      worker.postMessage({ channels: chs, rate: RATE, opts: { strength: strength, mono: mono, kbps: kbps } },
                          chs.map(function (c) { return c.buffer; }));
     }).catch(function () {
       fail('This browser could not read that file. Try WAV, MP3, M4A, FLAC or OGG (or open the page in Chrome, Edge or Safari for the widest format support).');
@@ -1004,6 +1072,16 @@ self.onmessage = function (e) {
     $('result').hidden = false;
     $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  function describeStrength() {
+    var v = parseInt($('strength').value, 10), label, note;
+    if (v < 30) { label = 'Gentle'; note = 'Gentle: for recordings that are already fairly clean.'; }
+    else if (v < 70) { label = 'Standard'; note = 'Standard: a good starting point for most recordings.'; }
+    else { label = 'Strong'; note = 'Strong: for noisy rooms. If a voice sounds thin or watery, back off.'; }
+    $('strength').setAttribute('aria-valuetext', label);
+    $('strengthNote').textContent = note;
+  }
+  $('strength').addEventListener('input', describeStrength);
 
   go.addEventListener('click', run);
   cancel.addEventListener('click', function () { endWorker(); setBusy(false); showError('Cancelled.'); });

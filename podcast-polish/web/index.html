@@ -21,12 +21,10 @@
   </section>
 
   <section class="options" aria-label="Options">
-    <fieldset>
-      <legend>Noise cleanup</legend>
-      <label><input type="radio" name="preset" value="light"> Light</label>
-      <label><input type="radio" name="preset" value="standard" checked> Standard</label>
-      <label><input type="radio" name="preset" value="strong"> Strong</label>
-    </fieldset>
+    <label class="slider">Noise cleanup strength
+      <span class="slider-row"><span>Gentle</span><input type="range" id="strength" min="0" max="100" value="50" aria-valuetext="Standard"><span>Strong</span></span>
+      <span class="slider-note" id="strengthNote">Standard: a good starting point for most recordings.</span>
+    </label>
     <label class="field">Bitrate
       <select id="kbps">
         <option value="64">64 kbps (small, speech only)</option>
