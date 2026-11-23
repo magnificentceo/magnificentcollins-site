@@ -1,0 +1,60 @@
+name: Refresh streaming links and icons
+
+# Runs every Monday. scripts/refresh.mjs only does real work every 13 days,
+# so the site refreshes about every two weeks. Run it now from the Actions tab
+# with "Run workflow" (set force to true to skip the 13-day check).
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run even if the last refresh was less than 13 days ago"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-links-and-icons
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install refresh script dependencies
+        working-directory: scripts
+        run: npm ci
+
+      - name: Run tests
+        working-directory: scripts
+        run: npm test
+
+      - name: Refresh links and icons
+        working-directory: scripts
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '1' || '' }}
+        run: npm run refresh
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/links-at.js site/assets/icons
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+          else
+            git commit -m "Refresh streaming links and platform icons"
+            git push
+          fi

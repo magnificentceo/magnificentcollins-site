@@ -1,0 +1,13 @@
+{
+  "name": "magnificentcollins-site-refresh",
+  "private": true,
+  "type": "module",
+  "description": "Refreshes streaming links (Austria storefront where available) and platform icons for the website.",
+  "scripts": {
+    "refresh": "node refresh.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "simple-icons": "^16.36.0"
+  }
+}

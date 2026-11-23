@@ -89,6 +89,19 @@
     return links.filter(function (l) { return !l.hidden && l.url; });
   }
 
+  // Adds links found by scripts/refresh.mjs (data/links-at.js). A service already listed in
+  // releases.js is never replaced, and only https links are used.
+  function withHarvested(release) {
+    var found = (window.SITE_LINKS && window.SITE_LINKS.songs && window.SITE_LINKS.songs[release.id]) || {};
+    var listed = {};
+    release.links.forEach(function (l) { listed[l.service] = true; });
+    var extra = Object.keys(found).filter(function (service) {
+      var f = found[service];
+      return !listed[service] && f && typeof f.url === "string" && f.url.indexOf("https://") === 0;
+    }).map(function (service) { return { service: service, url: found[service].url }; });
+    return release.links.concat(extra);
+  }
+
   function coverImg(release, className, eager) {
     var img = el("img", {
       className: className,
@@ -102,7 +115,7 @@
   }
 
   function linkButtons(release, solidFirst) {
-    var links = visible(release.links);
+    var links = visible(withHarvested(release));
     var main = links.filter(function (l) { return SECONDARY.indexOf(l.service) === -1; });
     var extra = links.filter(function (l) { return SECONDARY.indexOf(l.service) !== -1; });
 
